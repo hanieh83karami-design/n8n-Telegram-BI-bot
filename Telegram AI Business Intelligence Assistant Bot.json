@@ -1,0 +1,136 @@
+{
+  "name": "Telegram AI Business Intelligence Assistant Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "id": "51c8f4cc-e007-46e3-adf1-c703124364e9",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "3c4da41d-d7a8-4a08-81c7-f1eadbfa2217",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "V1XvaIMNoDPWzfcF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text || \"\" }}",
+        "options": {
+          "systemMessage": "You are a Business Intelligence (BI) assistant specialized in helping users understand BI concepts, tools, and best practices.\n\nYour task is to:\n1. Analyze the user's message and determine if it relates to Business Intelligence topics (data analytics, reporting, dashboards, KPIs, data warehousing, ETL, visualization tools, etc.)\n2. If the message is BI-related: Provide a helpful, concise explanation or answer\n3. If the message is NOT BI-related: Politely acknowledge their message and redirect them to ask about BI topics\n4. Keep responses short and direct (maximum 3 sentences)\n5. Use a friendly but semi-formal tone\n6. Return ONLY plain text responses (no markdown, no formatting)\n\nImportant: Even if the user message is empty or unclear, respond politely without breaking the workflow."
+        }
+      },
+      "id": "467ba3d1-3183-4154-b745-419d54075b75",
+      "name": "BI Assistant Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "a29a0f73-7d63-4b0b-8731-18fc0f771619",
+      "name": "Send Telegram Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        0
+      ],
+      "webhookId": "04cd0144-c9e6-4265-9aab-a96d1eac428b",
+      "credentials": {
+        "telegramApi": {
+          "id": "V1XvaIMNoDPWzfcF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "98d7096a-a4cf-4860-8863-79cb4217bee0",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "iZKgrshbbnPXpPf2",
+          "name": "OpenRouter account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "BI Assistant Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BI Assistant Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "BI Assistant Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fa4c288f-13a8-4ed5-903c-75a0b0399743",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ed5ab36ecf4dc3e05d6a283e4de15d9b282224e61753e2b13ad9095980bb9fe"
+  },
+  "id": "TKwJwfjHX3RE4DY1",
+  "tags": []
+}
